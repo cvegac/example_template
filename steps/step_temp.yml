@@ -1,0 +1,33 @@
+init_variables: #Constantes iniciales que se usaran en el paso
+  STATUS_ID:
+    EN_PROCESO: 0
+    FALLO: 1
+    RECHAZO: 2
+    FINALIZADO: 3
+  STEP_ID:
+    CLOSE_APP: 'step_close_app'
+    INICIO: 'step_appboot'
+
+steps: # Pasos internos del paso actual
+  - randomStep: # Paso aleatorio de tipo condicional
+      executeIf: '{{transaction.body.payload.atras ? true : false}}' # Precondicion opcional
+      type: 'condition' # Tipo de paso
+      conditions: # Listado de condiciones
+        - goBack:
+            type: 'isEqual'
+            field: '{{transaction.body.payload.atras}}'
+            valueToCompare: 'true'
+            launchWhenComply: true
+            response:
+              clientId: '{{transaction.body.clientId}}'
+              payload:
+                franquicia: "{{obtenerDataItem(initializedVariables.SESSION.sesion.presentacion.consumer.genericData.dataItem,'franquiciaTarjeta')}}"
+              status: '{{initializedVariables.STATUS_ID.FINALIZADO}}'
+              stepId: '{{initializedVariables.STEP_ID.CLOSE_APP}}'
+
+response: # Respuesta enviada cuando todos los demas pasos son exitosos
+  clientId: '{{transaction.body.clientId}}'
+  payload:
+    data: 'some data'
+  status: '{{initializedVariables.STATUS_ID.EN_PROCESO}}'
+  stepId: '{{initializedVariables.STEP_ID.INICIO}}'

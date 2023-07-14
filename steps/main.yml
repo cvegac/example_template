@@ -1,0 +1,3 @@
+workflows:
+  default:
+    step_temp: steps/step_temp.yml
